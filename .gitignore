@@ -1,0 +1,8 @@
+build/
+cheatsUploader/
+.vscode/
+BACKUP/
+*.elf
+*.nrp
+*.nacp
+*.nro
