@@ -1,0 +1,1 @@
+# switch-cheats-updater
