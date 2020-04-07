@@ -6,7 +6,7 @@
 A Nintendo Switch homebrew app to automatically update your cheat files for your installed games. Supports Atmosphere and SXOS.
 
 
-Fetches the latest cheats from the [gbatemp general thread](https://gbatemp.net/download/cheat-codes-sxos-and-ams-main-cheat-file-updated.36311/updates) through [my mirror](https://github.com/HamletDuFromage/switch-cheats-db) (updates once a day)
+Fetches the latest cheats from the [gbatemp general thread](https://gbatemp.net/download/cheat-codes-sxos-and-ams-main-cheat-file-updated.36311/updates) through [my mirror](https://github.com/HamletDuFromage/switch-cheats-db/releases) (updates once a day)
 
 ## How to install
 Copy the `switch-cheats-updater/` directory to `/switch/` in your sdcard
