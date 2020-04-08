@@ -62,9 +62,15 @@ bool isServiceRunning(const char *serviceName) {
 void run(){    
 
     bool sxos = !(isServiceRunning("dmnt:cht") && !(isServiceRunning("tx") && !isServiceRunning("rnx")));
-    std::string filename = "contents.zip";
-    if(sxos)
+    std::string filename;
+    if(sxos){
         filename = "titles.zip";
+        std::filesystem::create_directory("/sxos/titles");
+    }
+    else{
+        filename = "contents.zip";
+        std::filesystem::create_directory("/atmosphere/contents");
+    }
 
     std::vector<std::string> titles = getInstalledTitles();
     std::cout << "Found " << titles.size() << " installed titles" << std::endl;
