@@ -18,4 +18,4 @@ Copy the `switch-cheats-updater/` directory to `/switch/` in your sdcard
 ## Thanks
 [ITotalJustice](https://github.com/ITotalJustice) for his download functions
 
-The AtlasNX discord for helping me various libnx questions in the past few weeks
+The AtlasNX discord for helping me various with libnx questions in the past few weeks
