@@ -47,7 +47,7 @@ struct caselessCompare {
     }
 };
 
-int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos){
+int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits){
     zipper::Unzipper unzipper(zipPath);
     std::vector<zipper::ZipEntry> entries = unzipper.entries();
 
@@ -80,7 +80,14 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
             parents.push_back(entriesNames[k]);
             k++;
             while(entriesNames[k].length() != (size_t) (offset + 17) && k < entriesNames.size()){
-                tempChildren.push_back(entriesNames[k]);
+                if(credits == false){
+                    if(strcasecmp(entriesNames[k].substr(offset + 16, 7).c_str(), "/cheats") == 0){
+                        tempChildren.push_back(entriesNames[k]);
+                    }
+                }
+                else{
+                    tempChildren.push_back(entriesNames[k]);
+                }
                 k++;
             }
             children.push_back(tempChildren);
@@ -93,6 +100,7 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
 
     std::cout << "\033[4;31m"<< "\n*** Extracting cheats (this may take a while) ***" << "\033[0m" <<std::endl;
 
+    int count = 0;
     size_t lastL = 0;
     for(size_t j = 0; j < titles.size(); j++){
         for(size_t l = lastL; l < parents.size(); l++){
@@ -102,6 +110,7 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
                     unzipper.extractEntry(e);
                     std::cout << std::setfill(' ') << std::setw(80) << '\r';
                     std::cout << e.substr(0, 79) << "\r";
+                    count++;
                     consoleUpdate(NULL);
                 }
                 lastL = l;
@@ -112,55 +121,29 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
     std::cout << std::endl;
 
     unzipper.close();
-    return parents.size();
+    return count;
 }
 
-
-/* 
-int extractCheats(std::string zipPath, std::vector<std::string> titles){
-    
-    zipper::Unzipper unzipper(zipPath);
-    std::vector<zipper::ZipEntry> entries = unzipper.entries();
-    std::cout << "Found " << entries.size() << " entries" << std::endl;
-    std::vector<std::string> entriesNames;
-    std::vector<int> parentIndexes;
-    for (auto& e : entries){
-        if (e.name.size() == 24){
-            entriesNames.push_back(e.name.substr(7, 16)); // 16 + titles
-            //std :: cout << e.name.substr(7, 22) << std::endl;
+int removeCheats(bool sxos){
+    std::string path;
+    if(sxos){
+        path = std::string(SXOS_PATH) + std::string(TITLES_PATH);
+        std::filesystem::remove("./titles.zip");
+    }
+    else{
+        path = std::string(AMS_PATH) + std::string(CONTENTS_PATH);
+        std::filesystem::remove("./contents.zip");
+    }
+    int c = 0;
+    for (const auto & entry : std::filesystem::directory_iterator(path)){
+        std::string cheatsPath =  entry.path().string() + "/cheats";
+        if(std::filesystem::exists(cheatsPath)){
+            for (const auto & cheat : std::filesystem::directory_iterator(cheatsPath)){
+                std::filesystem::remove(cheat);
+                c++;
+            }
+            std::filesystem::remove(cheatsPath);
         }
     }
-    //std::cout << entriesNames[0] << std::endl;
-    //std::cout << titles[0] << std::endl;
-
-    std::sort(entriesNames.begin(), entriesNames.end());
-    std::sort(titles.begin(), titles.end());
-
-    std::vector<std::string> v;
-    //(entriesNames.size() + titles.size());
-    //std::vector<std::string>::iterator it;
-
-    std::set_intersection(entriesNames.begin(), entriesNames.end(), 
-                                begin(titles), titles.end(), 
-                                std::back_inserter(v), caselessCompare());
-                                //std::back_inserter(v));
-
-    //switch(IsSXOS()){
-    switch(0){
-        case 0:
-            for(auto& t : v){
-
-                //unzipper.extractEntry("titles/" + t + "/", "/atmosphere/contents/");}
-                unzipper.extractEntry("titles/" + t + "/", "./test/");
-            }
-            break;
-        case 1:
-            for(auto& t : v){
-            unzipper.extractEntry("titles/" + t + "/", "sxos/titles/");}
-            break;
-    }
-    //unzipper.extract("./test/");
-
-    unzipper.close();
-    return (int) v.size();
-} */
+    return c;
+}

@@ -8,7 +8,7 @@
 
 #include <switch.h>
 
-#define VERSION "1.0"
+#define VERSION "1.1"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -62,6 +62,8 @@ bool isServiceRunning(const char *serviceName) {
 void run(){    
 
     bool sxos = !(isServiceRunning("dmnt:cht") && !(isServiceRunning("tx") && !isServiceRunning("rnx")));
+    u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
+    bool credits = kHeld & KEY_L;
     std::string filename;
     if(sxos){
         filename = "titles.zip";
@@ -90,7 +92,7 @@ void run(){
     else{
         std::string url = std::string(ARCHIVE_URL) + filename;
         if(downloadFile(url.c_str(), filename.c_str(), OFF)){
-            int upd = extractCheats(filename.c_str(), titles, sxos);
+            int upd = extractCheats(filename.c_str(), titles, sxos, credits);
             std::cout << "Successfully extacted " << upd << " cheat files" << std::endl;
             saveVersion("version.dat", ver);
         }
@@ -101,13 +103,22 @@ void run(){
     consoleUpdate(NULL);
 }
 
+void cleanUp(){
+    bool sxos = !(isServiceRunning("dmnt:cht") && !(isServiceRunning("tx") && !isServiceRunning("rnx")));
+    int c = removeCheats(sxos);
+    saveVersion("version.dat", "0");
+    std::cout << "Removed " << c << " cheat files" << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     initServices();
 
     std::cout << "\033[1;31m" <<"Cheats Updater v" << VERSION << " by HamletDuFromage" << "\033[0m" <<std::endl;
     std::cout << "Press [A] to download and update cheat files" << std::endl;
-    std::cout << "Press [+] to quit" << std::endl;
+    std::cout << "Hold  [L] and press [A] to also download cheat credits and instructions" << std::endl;
+    std::cout << "Press [X] to delete all existing cheat files" << std::endl;
+    std::cout << "Press [+] to quit" << std::endl << std::endl;
 
     consoleUpdate(NULL);
 
@@ -128,6 +139,16 @@ int main(int argc, char* argv[])
 
             }
         } 
+
+        if (kDown & KEY_X){
+            if(!done){
+                cleanUp();
+                done = true;
+                std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
+                consoleUpdate(NULL);
+
+            }
+        }
 
         if (kDown & KEY_PLUS)
             break; 

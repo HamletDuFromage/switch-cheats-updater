@@ -11,6 +11,7 @@
 #include <iterator>
 #include <string.h>
 #include <stdio.h>
+#include <filesystem>
 
 #include <unzipper.h>
 
@@ -23,9 +24,9 @@ std::vector<std::string> getInstalledTitles();
 
 std::string formatApplicationId(u64 ApplicationId);
 
-int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos);
+int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits);
 
-int isSXOS();
+int removeCheats(bool sxos);
 
 struct caselessCompare;
 
