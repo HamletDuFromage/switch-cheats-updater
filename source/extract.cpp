@@ -1,27 +1,27 @@
 #include "extract.hpp"
 #include <iostream>
 
-std::vector<std::string> getInstalledTitles(){
+std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId){
     std::vector<std::string> titles;
     NcmContentMetaDatabase metadb;
-    Result rc = ncmOpenContentMetaDatabase(&metadb, NcmStorageId_SdCard);
-    if(R_SUCCEEDED(rc))
-        {
+
+    for (auto& sId : storageId){
+        Result rc = ncmOpenContentMetaDatabase(&metadb, sId);
+        if(R_SUCCEEDED(rc)){
             NcmApplicationContentMetaKey *recs = new NcmApplicationContentMetaKey[MaxTitleCount]();
             s32 wrt = 0;
             s32 total = 0;
             rc = ncmContentMetaDatabaseListApplication(&metadb, &total, &wrt, recs, MaxTitleCount, NcmContentMetaType_Application);
-            if((R_SUCCEEDED(rc)) && (wrt > 0))
-            {
+            if((R_SUCCEEDED(rc)) && (wrt > 0)){
                 titles.reserve(wrt);
-                for(s32 i = 0; i < wrt; i++)
-                {
+                for(s32 i = 0; i < wrt; i++){
                     titles.push_back(formatApplicationId(recs[i].application_id));
                 }
             }
             delete[] recs;
             serviceClose(&metadb.s);
         }
+    }
     return titles;
 }
 

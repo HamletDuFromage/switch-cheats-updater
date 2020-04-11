@@ -20,7 +20,7 @@
 #define AMS_PATH "/atmosphere/"
 #define SXOS_PATH "/sxos/"
 
-std::vector<std::string> getInstalledTitles();
+std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId);
 
 std::string formatApplicationId(u64 ApplicationId);
 

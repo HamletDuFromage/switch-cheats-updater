@@ -74,7 +74,8 @@ void run(){
         std::filesystem::create_directory("/atmosphere/contents");
     }
 
-    std::vector<std::string> titles = getInstalledTitles();
+    //std::vector<NcmStorageId> storageIds = {NcmStorageId_BuiltInUser, NcmStorageId_GameCard, NcmStorageId_SdCard};
+    std::vector<std::string> titles = getInstalledTitles({NcmStorageId_BuiltInUser, NcmStorageId_GameCard, NcmStorageId_SdCard});
     std::cout << "Found " << titles.size() << " installed titles" << std::endl;
     consoleUpdate(NULL);
 
