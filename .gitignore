@@ -2,6 +2,7 @@ build/
 cheatsUploader/
 .vscode/
 BACKUP/
+test/
 *.elf
 *.nrp
 *.nacp
