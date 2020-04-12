@@ -36,6 +36,8 @@ bool caselessCompare (const std::string& a, const std::string& b){
 }
 
 int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits){
+
+  std::cout << "0" << std::endl;                     consoleUpdate(NULL);    
     zipper::Unzipper unzipper(zipPath);
     std::vector<zipper::ZipEntry> entries = unzipper.entries();
 
@@ -68,7 +70,7 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
             parents.push_back(entriesNames[k]);
             k++;
             while(entriesNames[k].length() != (size_t) (offset + 17) && k < entriesNames.size()){
-                if(credits == false){
+                if(credits == false){ 
                     if(strcasecmp(entriesNames[k].substr(offset + 16, 7).c_str(), "/cheats") == 0){
                         tempChildren.push_back(entriesNames[k]);
                     }

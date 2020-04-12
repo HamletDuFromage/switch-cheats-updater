@@ -16,7 +16,7 @@
 #include <unzipper.h>
 
 #define CONTENTS_PATH "contents/"
-#define TITLES_PATH "contents/"
+#define TITLES_PATH "titles/"
 #define AMS_PATH "/atmosphere/"
 #define SXOS_PATH "/sxos/"
 

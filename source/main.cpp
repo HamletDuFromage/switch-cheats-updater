@@ -8,7 +8,7 @@
 
 #include <switch.h>
 
-#define VERSION "1.1.2"
+#define VERSION "1.1.3"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
