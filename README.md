@@ -12,8 +12,7 @@ Fetches the latest cheats from the [gbatemp general thread](https://gbatemp.net/
 Copy the `switch-cheats-updater/` directory to `/switch/` in your sdcard
 
 ## Screenshots
-![main](https://user-images.githubusercontent.com/61667930/79019902-a6eb8900-7b77-11ea-8fc7-143374cecbe2.jpg)
-![done](https://user-images.githubusercontent.com/61667930/78696250-77324c00-78ff-11ea-82a5-6751b30dc7af.jpg)
+![done](https://user-images.githubusercontent.com/61667930/79019902-a6eb8900-7b77-11ea-8fc7-143374cecbe2.jpg)
 
 ## Thanks
 [ITotalJustice](https://github.com/ITotalJustice) for his download functions
