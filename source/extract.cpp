@@ -31,21 +31,9 @@ std::string formatApplicationId(u64 ApplicationId){
     return strm.str();
 }
 
-int isSXOS()
-{
-    Handle tmph = 0;
-    SmServiceName TX = {"tx\0"};
-    Result rc = smRegisterService(&tmph, TX, false, 1);
-    if(R_FAILED(rc)) return true;
-    smUnregisterService(TX);
-    return 1;
+bool caselessCompare (const std::string& a, const std::string& b){
+    return strcasecmp(a.c_str(), b.c_str()) < 0;
 }
-
-struct caselessCompare { 
-    bool operator() (const std::string& a, const std::string& b) const {
-        return strcasecmp(a.substr(7, 16).c_str(), b.c_str()) < 0;
-    }
-};
 
 int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits){
     zipper::Unzipper unzipper(zipPath);
@@ -67,7 +55,7 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
         entriesNames.push_back(entries[i].name);
     }
 
-    std::sort(entriesNames.begin(), entriesNames.end());
+    std::sort(entriesNames.begin(), entriesNames.end(), caselessCompare);
     std::sort(titles.begin(), titles.end());
 
     std::vector<std::string> parents;

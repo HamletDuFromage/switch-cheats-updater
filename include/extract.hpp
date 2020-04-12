@@ -28,7 +28,7 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
 
 int removeCheats(bool sxos);
 
-struct caselessCompare;
+bool caselessCompare (const std::string& a, const std::string& b);
 
 static constexpr u32 MaxTitleCount = 64000;
 
