@@ -25,6 +25,20 @@ std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId)
     return titles;
 }
 
+std::vector<std::string> getInstalledTitlesNs(){
+    std::vector<std::string> titles;
+    NsApplicationRecord *recs = new NsApplicationRecord[MaxTitleCount]();
+    s32 total = 0;
+    Result rc = nsListApplicationRecord(recs, MaxTitleCount, 0, &total);
+    if (R_SUCCEEDED(rc)){
+        for (s32 i = 0; i < total; i++){
+            titles.push_back(formatApplicationId(recs[i].application_id));
+        }
+    }
+    delete[] recs;
+    return titles;
+}
+
 std::string formatApplicationId(u64 ApplicationId){
     std::stringstream strm;
     strm << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << ApplicationId;
@@ -37,7 +51,6 @@ bool caselessCompare (const std::string& a, const std::string& b){
 
 int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits){
 
-  std::cout << "0" << std::endl;                     consoleUpdate(NULL);    
     zipper::Unzipper unzipper(zipPath);
     std::vector<zipper::ZipEntry> entries = unzipper.entries();
 

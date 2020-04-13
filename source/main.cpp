@@ -8,7 +8,7 @@
 
 #include <switch.h>
 
-#define VERSION "1.1.3"
+#define VERSION "1.1.4"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -16,13 +16,15 @@
 
 void initServices(){
     consoleInit(NULL);
-    ncmInitialize();
+    //ncmInitialize();
+    nsInitialize();
     socketInitializeDefault();
 }
 
 void exitServices(){
     socketExit();
-    ncmExit();
+    nsExit();
+    //ncmExit();
     consoleExit(NULL);
 }
 
@@ -74,12 +76,10 @@ void run(){
         std::filesystem::create_directory("/atmosphere/contents");
     }
 
-    //std::vector<NcmStorageId> storageIds = {NcmStorageId_BuiltInUser, NcmStorageId_GameCard, NcmStorageId_SdCard};
+
     std::vector<std::string> titles;
-    //if(sxos)
-        //titles = getInstalledTitles({NcmStorageId_SdCard, NcmStorageId_BuiltInSystem});
-    //else
-        titles = getInstalledTitles({NcmStorageId_BuiltInUser, NcmStorageId_GameCard, NcmStorageId_SdCard});
+    //titles = getInstalledTitles({NcmStorageId_SdCard, NcmStorageId_BuiltInUser, NcmStorageId_GameCard});
+    titles = getInstalledTitlesNs();
 
     std::cout << "Found " << titles.size() << " installed titles" << std::endl;
     consoleUpdate(NULL);

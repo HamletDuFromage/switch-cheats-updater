@@ -22,6 +22,8 @@
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId);
 
+std::vector<std::string> getInstalledTitlesNs();
+
 std::string formatApplicationId(u64 ApplicationId);
 
 int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits);
