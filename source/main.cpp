@@ -8,7 +8,7 @@
 
 #include <switch.h>
 
-#define VERSION "1.1.5"
+#define VERSION "1.1.6"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -40,8 +40,6 @@ std::string readVersion(std::string path){
 }
 
 void saveVersion(std::string path, std::string version){
-    std::filesystem::create_directory("/config");
-    std::filesystem::create_directory("/config/cheats-updater");
     std::fstream newVersion;
     newVersion.open("/config/cheats-updater/" + path, std::fstream::out | std::fstream::trunc);
     newVersion << version << std::endl;
@@ -75,13 +73,22 @@ void run(){
         filename = "contents.zip";
         std::filesystem::create_directory("/atmosphere/contents");
     }
+    std::filesystem::create_directory("/config");
+    std::filesystem::create_directory("/config/cheats-updater");
 
 
     std::vector<std::string> titles;
     //titles = getInstalledTitles({NcmStorageId_SdCard, NcmStorageId_BuiltInUser, NcmStorageId_GameCard});
     titles = getInstalledTitlesNs();
+    int total = titles.size();
+    std::cout << "Found " << total << " installed titles" << std::endl;
 
-    std::cout << "Found " << titles.size() << " installed titles" << std::endl;
+    titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
+    if((int) titles.size() != total)
+        std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
+
+    std::cout << std::endl;
+
     consoleUpdate(NULL);
 
     std::string ver = fetchVersion(RELEASE_URL, "1100-1110");
@@ -98,6 +105,7 @@ void run(){
     else{
         std::string url = std::string(ARCHIVE_URL) + filename;
         if(downloadFile(url.c_str(), filename.c_str(), OFF)){
+        //if(false){
             int upd = extractCheats(filename.c_str(), titles, sxos, credits);
             std::cout << "Successfully extacted " << upd << " cheat files" << std::endl;
             saveVersion("version.dat", ver);
@@ -120,10 +128,19 @@ int main(int argc, char* argv[])
 {
     initServices();
 
-    std::cout << "\033[1;31m" <<"Cheats Updater v" << VERSION << " by HamletDuFromage\n" << "\033[0m" <<std::endl;
+    std::cout << "\033[31m" << "================================================================================" << "\033[0m" << std::endl;
+    std::cout << "\033[1;31m" << "Cheats Updater v" << VERSION << " by HamletDuFromage" << "\033[0m" <<std::endl;
+    std::cout << "\033[31m" << "================================================================================" << "\033[0m" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "\033[36m" << "Title ids listed in \"/config/cheats-updater/exclude.txt\" won't get cheat updates" << "\033[0m" << std::endl;
+
     std::cout << "Press [A] to download and update cheat files" << std::endl;
     std::cout << "Hold  [L] and press [A] to also download cheat credits and instructions" << std::endl;
-    std::cout << "Press [X] to delete all existing cheat files\n" << std::endl;
+    std::cout << "Press [X] to delete ALL existing cheat files\n" << std::endl;
+
+    
+
     std::cout << "Press [+] to quit" << std::endl << std::endl;
 
     consoleUpdate(NULL);
