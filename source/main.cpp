@@ -8,7 +8,7 @@
 
 #include <switch.h>
 
-#define VERSION "1.1.4"
+#define VERSION "1.1.5"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -120,10 +120,10 @@ int main(int argc, char* argv[])
 {
     initServices();
 
-    std::cout << "\033[1;31m" <<"Cheats Updater v" << VERSION << " by HamletDuFromage" << "\033[0m" <<std::endl;
+    std::cout << "\033[1;31m" <<"Cheats Updater v" << VERSION << " by HamletDuFromage\n" << "\033[0m" <<std::endl;
     std::cout << "Press [A] to download and update cheat files" << std::endl;
     std::cout << "Hold  [L] and press [A] to also download cheat credits and instructions" << std::endl;
-    std::cout << "Press [X] to delete all existing cheat files" << std::endl;
+    std::cout << "Press [X] to delete all existing cheat files\n" << std::endl;
     std::cout << "Press [+] to quit" << std::endl << std::endl;
 
     consoleUpdate(NULL);

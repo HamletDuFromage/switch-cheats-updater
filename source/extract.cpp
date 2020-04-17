@@ -1,5 +1,5 @@
 #include "extract.hpp"
-#include <iostream>
+
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId){
     std::vector<std::string> titles;
@@ -145,7 +145,11 @@ int removeCheats(bool sxos){
                 std::filesystem::remove(cheat);
                 c++;
             }
-            std::filesystem::remove(cheatsPath);
+            //std::filesystem::remove(cheatsPath);
+            rmdir(cheatsPath.c_str());
+            if(std::filesystem::is_empty(entry)){
+                rmdir(entry.path().string().c_str());
+            }
         }
     }
     return c;

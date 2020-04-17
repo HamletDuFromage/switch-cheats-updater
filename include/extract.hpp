@@ -12,6 +12,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <filesystem>
+#include <iostream>
+
+#include <unistd.h>
 
 #include <unzipper.h>
 
