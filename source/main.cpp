@@ -1,4 +1,5 @@
 #include <iostream>
+#include <tuple>
 #include <fstream>
 #include <filesystem>
 
@@ -8,7 +9,7 @@
 
 #include <switch.h>
 
-#define VERSION "1.1.6"
+#define VERSION "1.1.7"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -76,23 +77,17 @@ void run(){
     std::filesystem::create_directory("/config");
     std::filesystem::create_directory("/config/cheats-updater");
 
-
     std::vector<std::string> titles;
-    //titles = getInstalledTitles({NcmStorageId_SdCard, NcmStorageId_BuiltInUser, NcmStorageId_GameCard});
+
     titles = getInstalledTitlesNs();
     int total = titles.size();
     std::cout << "Found " << total << " installed titles" << std::endl;
 
-    for(int t = 0; t < total; t++) {
-        std::cout << "Title ID: " << titles.at(t) << std::endl;
-    }
-
     titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
     if((int) titles.size() != total)
         std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
-
     std::cout << std::endl;
-
+    
     consoleUpdate(NULL);
 
     std::string ver = fetchVersion(RELEASE_URL, "1100-1110");
@@ -129,26 +124,66 @@ void cleanUp(){
     std::cout << "Removed " << c << " cheat files" << std::endl;
 }
 
-int main(int argc, char* argv[])
-{
-    initServices();
+void viewTitles() {
+    std::vector<std::string> titles;
 
+    titles = getInstalledTitlesNs();
+    int total = titles.size();
+    std::cout << "Found " << total << " installed titles" << std::endl;
+
+    titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
+    if((int) titles.size() != total)
+        std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Titles (Minus Exceptions)" << std::endl;
+    for(int t = 0; t < (int)titles.size(); t++) {
+        std::cout << "Title ID: " << titles.at(t) << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void viewTitlesNames() {
+    std::vector<std::tuple<std::string, std::string>> titles;
+
+    titles = getInstalledTitlesNsNames();
+    int total = titles.size();
+    std::cout << "Found " << total << " installed titles" << std::endl;
+
+    /*titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
+    if((int) titles.size() != total)
+        std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
+    std::cout << std::endl;
+*/
+    for(int t = 0; t < (int)titles.size(); t++) {
+        std::cout << "Title ID: " << std::get<0>(titles.at(t)) << " Title Name: " << std::get<1>(titles.at(t)) << std::endl;
+    }
+    std::cout << std::endl;
+}
+
+void viewMain() {
     std::cout << "\033[31m" << "================================================================================" << "\033[0m" << std::endl;
-    std::cout << "\033[1;31m" << "Cheats Updater v" << VERSION << " by HamletDuFromage" << "\033[0m" <<std::endl;
+    std::cout << "\033[1;31m" << "Cheats Updater v" << VERSION << " by HamletDuFromage & Acta" << "\033[0m" <<std::endl;
     std::cout << "\033[31m" << "================================================================================" << "\033[0m" << std::endl;
     std::cout << std::endl;
 
     std::cout << "\033[36m" << "Title ids listed in \"/config/cheats-updater/exclude.txt\" won't get cheat updates" << "\033[0m" << std::endl;
 
     std::cout << "Press [A] to download and update cheat files" << std::endl;
+    std::cout << "Press [B] to view installed titles" << std::endl;
     std::cout << "Hold  [L] and press [A] to also download cheat credits and instructions" << std::endl;
     std::cout << "Press [X] to delete ALL existing cheat files\n" << std::endl;
 
-    
 
     std::cout << "Press [+] to quit" << std::endl << std::endl;
 
     consoleUpdate(NULL);
+}
+int main(int argc, char* argv[])
+{
+    initServices();
+
+    viewMain();
 
     bool done = false;
 
@@ -162,6 +197,7 @@ int main(int argc, char* argv[])
             if(!done){
                 run();
                 done = true;
+                std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
                 consoleUpdate(NULL);
 
@@ -172,12 +208,31 @@ int main(int argc, char* argv[])
             if(!done){
                 cleanUp();
                 done = true;
+                std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
                 consoleUpdate(NULL);
 
             }
         }
 
+        if (kDown & KEY_B){
+            if(!done){
+                viewTitlesNames();
+                done = true;
+                std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
+                std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
+                consoleUpdate(NULL);
+
+            }
+        }
+        if (kDown & KEY_MINUS) {
+            if(done) {
+                //std::cout << std::string( 40, '\n' );
+                viewMain();
+                done = false;
+                consoleUpdate(NULL);
+            }
+        }
         if (kDown & KEY_PLUS)
             break; 
     }

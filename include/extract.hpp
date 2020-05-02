@@ -28,6 +28,8 @@ std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId)
 
 std::vector<std::string> getInstalledTitlesNs();
 
+std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNsNames();
+
 std::string formatApplicationId(u64 ApplicationId);
 
 std::vector<std::string> excludeTitles(const char* path, std::vector<std::string>);

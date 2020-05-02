@@ -1,4 +1,5 @@
 #include "extract.hpp"
+#include <tuple>
 
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId){
@@ -37,6 +38,72 @@ std::vector<std::string> getInstalledTitlesNs(){
     }
     delete[] recs;
     std::sort(titles.begin(), titles.end());
+    return titles;
+}
+
+std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNsNames(){
+    Result rc = 0;
+
+    std::vector<std::tuple<std::string, std::string>> titles;
+
+    NsApplicationRecord *recs = new NsApplicationRecord[MaxTitleCount]();
+    NsApplicationControlData *buf=NULL;
+    u64 outsize=0;
+
+    NacpLanguageEntry *langentry = NULL;
+    char name[0x201];
+
+    buf = (NsApplicationControlData*)malloc(sizeof(NsApplicationControlData));
+    if (buf==NULL) {
+        rc = MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
+        printf("Failed to alloc mem.\n");
+    } else {
+        memset(buf, 0, sizeof(NsApplicationControlData));
+    }
+
+    if (R_SUCCEEDED(rc)) {
+        rc = nsInitialize();
+        if (R_FAILED(rc)) {
+            printf("nsInitialize() failed: 0x%x\n", rc);
+        }
+    }
+
+    s32 total = 0;
+    rc = nsListApplicationRecord(recs, MaxTitleCount, 0, &total);
+    if (R_SUCCEEDED(rc)){
+        for (s32 i = 0; i < total; i++){
+            rc = nsGetApplicationControlData(NsApplicationControlSource_Storage, recs[i].application_id, buf, sizeof(NsApplicationControlData), &outsize);
+
+            if (R_FAILED(rc)) {
+                std::cout << "nsGetApplicationControlData() failed: 0x" << std::hex << rc << " for Title ID: " << formatApplicationId(recs[i].application_id) << std::endl;;
+                //titles.push_back(std::make_tuple(formatApplicationId(recs[i].application_id), "Error Occurred"));
+            }
+
+            if (outsize < sizeof(buf->nacp)) {
+                rc = -1;
+                printf("Outsize is too small: 0x%lx.\n", outsize);
+            }
+
+            if (R_SUCCEEDED(rc)) {
+                rc = nacpGetLanguageEntry(&buf->nacp, &langentry);
+
+                if (R_FAILED(rc) || langentry==NULL) printf("Failed to load LanguageEntry.\n");
+            }
+            if (R_SUCCEEDED(rc)) {
+                memset(name, 0, sizeof(name));
+                strncpy(name, langentry->name, sizeof(char)*41); //Don't assume the nacp string is NUL-terminated for safety.
+                
+                titles.push_back(std::make_tuple(formatApplicationId(recs[i].application_id), name));
+            }
+
+            nsExit();
+            //titles.push_back(formatApplicationId(recs[i].application_id));
+        }
+    }
+    free(buf);
+    delete[] recs;
+    std::sort(titles.begin(), titles.end());
+    std::cout << "\n\n";
     return titles;
 }
 
