@@ -26,15 +26,15 @@
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId);
 
-std::vector<std::string> getInstalledTitlesNs();
-
-std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNsNames();
+std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNs();
 
 std::string formatApplicationId(u64 ApplicationId);
 
-std::vector<std::string> excludeTitles(const char* path, std::vector<std::string>);
+std::vector<std::tuple<std::string, std::string>> excludeTitles(const char* path, std::vector<std::tuple<std::string, std::string>> listedTitles);
 
-int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits);
+bool isExcluded (std::tuple<std::string, std::string> t1, std::tuple<std::string, std::string> t2);
+
+int extractCheats(std::string zipPath, std::vector<std::tuple<std::string, std::string>> titles, bool sxos, bool credits);
 
 int removeCheats(bool sxos);
 

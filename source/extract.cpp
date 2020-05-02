@@ -26,57 +26,79 @@ std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId)
     return titles;
 }
 
+/*
 std::vector<std::string> getInstalledTitlesNs(){
     std::vector<std::string> titles;
-    NsApplicationRecord *recs = new NsApplicationRecord[MaxTitleCount]();
+    NsApplicationRecord *records = new NsApplicationRecord[MaxTitleCount]();
     s32 total = 0;
-    Result rc = nsListApplicationRecord(recs, MaxTitleCount, 0, &total);
+    Result rc = nsListApplicationRecord(records, MaxTitleCount, 0, &total);
     if (R_SUCCEEDED(rc)){
         for (s32 i = 0; i < total; i++){
-            titles.push_back(formatApplicationId(recs[i].application_id));
+            titles.push_back(formatApplicationId(records[i].application_id));
         }
     }
-    delete[] recs;
+    delete[] records;
     std::sort(titles.begin(), titles.end());
     return titles;
 }
+*/
+std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNs(){
+    // This function has been cobbled together from the "app_controldata" example in devkitpro.
 
-std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNsNames(){
+    // Set the rc variable to begin with
     Result rc = 0;
 
+    // Initialise a vector of tuples, storing the title ID and the title name.
     std::vector<std::tuple<std::string, std::string>> titles;
 
+    // Initialise an application record array, where the size is MaxTitleCount
     NsApplicationRecord *recs = new NsApplicationRecord[MaxTitleCount]();
-    NsApplicationControlData *buf=NULL;
-    u64 outsize=0;
 
+    // Set the buffer to NULL
+    NsApplicationControlData *buf=NULL;
+    // Set outsize to 0
+    u64 outsize=0;
+    // Set the language entry to NULL
     NacpLanguageEntry *langentry = NULL;
+
+    // Create a char array to store the name of the title
     char name[0x201];
 
-    buf = (NsApplicationControlData*)malloc(sizeof(NsApplicationControlData));
-    if (buf==NULL) {
-        rc = MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
-        printf("Failed to alloc mem.\n");
-    } else {
-        memset(buf, 0, sizeof(NsApplicationControlData));
-    }
-
-    if (R_SUCCEEDED(rc)) {
-        rc = nsInitialize();
-        if (R_FAILED(rc)) {
-            printf("nsInitialize() failed: 0x%x\n", rc);
-        }
-    }
-
+    // Set the total records to 0
     s32 total = 0;
+    // Set a failed counter to 0
+    int totalFailed = 0;
+    // Fill the recs array with application records
     rc = nsListApplicationRecord(recs, MaxTitleCount, 0, &total);
+
+    // If filling the recs array was successful
     if (R_SUCCEEDED(rc)){
+        // Loop through records
         for (s32 i = 0; i < total; i++){
+
+            // Reset varaibles for accessing memory
+            outsize=0;
+            buf = (NsApplicationControlData*)malloc(sizeof(NsApplicationControlData));
+            if (buf==NULL) {
+                rc = MAKERESULT(Module_Libnx, LibnxError_OutOfMemory);
+                printf("Failed to alloc mem.\n");
+            } else {
+                memset(buf, 0, sizeof(NsApplicationControlData));
+            }
+
+            if (R_SUCCEEDED(rc)) {
+                rc = nsInitialize();
+                if (R_FAILED(rc)) {
+                    printf("nsInitialize() failed: 0x%x\n", rc);
+                }
+            }
+            
+            // Get the application control data for the current record
             rc = nsGetApplicationControlData(NsApplicationControlSource_Storage, recs[i].application_id, buf, sizeof(NsApplicationControlData), &outsize);
 
             if (R_FAILED(rc)) {
-                std::cout << "nsGetApplicationControlData() failed: 0x" << std::hex << rc << " for Title ID: " << formatApplicationId(recs[i].application_id) << std::endl;;
-                //titles.push_back(std::make_tuple(formatApplicationId(recs[i].application_id), "Error Occurred"));
+                totalFailed++;
+                std::cout << "nsGetApplicationControlData() failed: 0x" << std::hex << rc << " for Title ID: " << formatApplicationId(recs[i].application_id) << std::endl;
             }
 
             if (outsize < sizeof(buf->nacp)) {
@@ -84,26 +106,29 @@ std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNsNames(){
                 printf("Outsize is too small: 0x%lx.\n", outsize);
             }
 
+            // If application control data was retrieved successfully
             if (R_SUCCEEDED(rc)) {
                 rc = nacpGetLanguageEntry(&buf->nacp, &langentry);
 
                 if (R_FAILED(rc) || langentry==NULL) printf("Failed to load LanguageEntry.\n");
             }
+
+            // If nacp language entry was retrieved successfully
             if (R_SUCCEEDED(rc)) {
                 memset(name, 0, sizeof(name));
-                strncpy(name, langentry->name, sizeof(char)*41); //Don't assume the nacp string is NUL-terminated for safety.
-                
+                strncpy(name, langentry->name, sizeof(name)-1); //Don't assume the nacp string is NUL-terminated for safety.
                 titles.push_back(std::make_tuple(formatApplicationId(recs[i].application_id), name));
             }
 
             nsExit();
-            //titles.push_back(formatApplicationId(recs[i].application_id));
         }
     }
+
     free(buf);
     delete[] recs;
     std::sort(titles.begin(), titles.end());
-    std::cout << "\n\n";
+    if(totalFailed > 0) 
+        std::cout << "\n\nFailed " << totalFailed << " titles." << std::endl;
     return titles;
 }
 
@@ -113,6 +138,30 @@ std::string formatApplicationId(u64 ApplicationId){
     return strm.str();
 }
 
+std::vector<std::tuple<std::string, std::string>> excludeTitles(const char* path, std::vector<std::tuple<std::string, std::string>> listedTitles){
+    std::vector<std::tuple<std::string, std::string>> titles;
+    std::ifstream file(path);
+    if (file.is_open()) {
+        std::string line;
+        while (std::getline(file, line)) {
+            std::transform(line.begin(), line.end(), line.begin(), ::toupper);
+            titles.push_back(std::make_tuple(line, "No name provided"));
+        }
+        file.close();
+    }
+
+    std::sort(titles.begin(), titles.end());
+    std::vector<std::tuple<std::string, std::string>> diff;
+
+    std::set_difference(listedTitles.begin(), listedTitles.end(), titles.begin(), titles.end(), 
+                         std::inserter(diff, diff.begin()), isExcluded);
+    return diff;
+}
+
+bool isExcluded(std::tuple<std::string, std::string> t1, std::tuple<std::string, std::string> t2) {
+    return (std::get<0>(t1) == std::get<0>(t2));
+}
+/*
 std::vector<std::string> excludeTitles(const char* path, std::vector<std::string> listedTitles){
     std::vector<std::string> titles;
     std::ifstream file(path);
@@ -131,12 +180,12 @@ std::vector<std::string> excludeTitles(const char* path, std::vector<std::string
                          std::inserter(diff, diff.begin()));
     return diff;
 }
-
+*/
 bool caselessCompare (const std::string& a, const std::string& b){
     return strcasecmp(a.c_str(), b.c_str()) < 0;
 }
 
-int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits){
+int extractCheats(std::string zipPath, std::vector<std::tuple<std::string, std::string>> titles, bool sxos, bool credits){
 
     zipper::Unzipper unzipper(zipPath);
     std::vector<zipper::ZipEntry> entries = unzipper.entries();
@@ -193,7 +242,7 @@ int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxo
     size_t lastL = 0;
     for(size_t j = 0; j < titles.size(); j++){
         for(size_t l = lastL; l < parents.size(); l++){
-            if(strcasecmp(titles[j].c_str(), parents[l].substr(offset, 16).c_str()) == 0){
+            if(strcasecmp(std::get<0>(titles.at(j)).c_str(), parents[l].substr(offset, 16).c_str()) == 0){
                 unzipper.extractEntry(parents[l]);
                 for(auto& e : children[l]){
                     unzipper.extractEntry(e);

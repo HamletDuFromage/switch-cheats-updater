@@ -77,7 +77,7 @@ void run(){
     std::filesystem::create_directory("/config");
     std::filesystem::create_directory("/config/cheats-updater");
 
-    std::vector<std::string> titles;
+    std::vector<std::tuple<std::string, std::string>> titles;
 
     titles = getInstalledTitlesNs();
     int total = titles.size();
@@ -124,6 +124,7 @@ void cleanUp(){
     std::cout << "Removed " << c << " cheat files" << std::endl;
 }
 
+/*
 void viewTitles() {
     std::vector<std::string> titles;
 
@@ -141,20 +142,20 @@ void viewTitles() {
         std::cout << "Title ID: " << titles.at(t) << std::endl;
     }
     std::cout << std::endl;
-}
+}*/
 
-void viewTitlesNames() {
+void viewTitles() {
     std::vector<std::tuple<std::string, std::string>> titles;
 
-    titles = getInstalledTitlesNsNames();
+    titles = getInstalledTitlesNs();
     int total = titles.size();
     std::cout << "Found " << total << " installed titles" << std::endl;
 
-    /*titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
+    titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
     if((int) titles.size() != total)
         std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
     std::cout << std::endl;
-*/
+
     for(int t = 0; t < (int)titles.size(); t++) {
         std::cout << "Title ID: " << std::get<0>(titles.at(t)) << " Title Name: " << std::get<1>(titles.at(t)) << std::endl;
     }
@@ -217,7 +218,7 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_B){
             if(!done){
-                viewTitlesNames();
+                viewTitles();
                 done = true;
                 std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
