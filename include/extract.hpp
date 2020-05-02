@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include <unzipper.h>
+#include "title.h"
 
 #define CONTENTS_PATH "contents/"
 #define TITLES_PATH "titles/"

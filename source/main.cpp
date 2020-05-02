@@ -4,10 +4,11 @@
 #include <filesystem>
 
 #include "unzipper.h"
+#include "title.h"
+#include <switch.h>
+
 #include "extract.hpp"
 #include "download.hpp"
-
-#include <switch.h>
 
 #define VERSION "1.1.7"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
