@@ -44,7 +44,7 @@ DATA		:=	data
 INCLUDES	:=	include libs/minizip/include
 #ROMFS		:=	romfs
 APP_TITLE   :=  Cheats Updater
-APP_AUTHOR  :=  HamletDuFromage
+APP_AUTHOR  :=  HamletDuFromage & Acta
 APP_VERSION :=  1.1.6
 
 #---------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ CXXFLAGS	:= $(CFLAGS) -fexceptions -std=gnu++17 -Wno-reorder
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lnx -lz -lcurl -lmbedtls -lmbedx509 -lmbedcrypto -lstdc++fs `freetype-config --libs`
+LIBS	:= -lcurl -lnx -lz -lmbedtls -lmbedx509 -lmbedcrypto -lstdc++fs `freetype-config --libs`
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

@@ -83,6 +83,10 @@ void run(){
     int total = titles.size();
     std::cout << "Found " << total << " installed titles" << std::endl;
 
+    for(int t = 0; t < total; t++) {
+        std::cout << "Title ID: " << titles.at(t) << std::endl;
+    }
+
     titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
     if((int) titles.size() != total)
         std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
@@ -93,8 +97,8 @@ void run(){
 
     std::string ver = fetchVersion(RELEASE_URL, "1100-1110");
     std::string oldVersion = readVersion("version.dat");
-    if(sxos) std::cout << "Current cheats revision: v" << oldVersion << ", downloading v" << ver << " for SXOS" <<std::endl;
-    else std::cout << "Current cheats revision: v" << oldVersion << ", downloading v" << ver << " for AMS" <<std::endl;
+    if(sxos) std::cout << "Current cheats revision: v" << oldVersion << ", latest v" << ver << " for SXOS" <<std::endl;
+    else std::cout << "Current cheats revision: v" << oldVersion << ", latest v" << ver << " for AMS" <<std::endl;
     std::cout << std::endl;
     if(ver == oldVersion){
         std::cout << "Already up to date. There's nothing else to do." << std::endl;
@@ -103,6 +107,7 @@ void run(){
         std::cout << "Couldn't reach the download page. Please check your internet connection" << std::endl;
     }
     else{
+        std::cout << "Downloading v" << ver << "..." << std::endl;
         std::string url = std::string(ARCHIVE_URL) + filename;
         if(downloadFile(url.c_str(), filename.c_str(), OFF)){
         //if(false){
