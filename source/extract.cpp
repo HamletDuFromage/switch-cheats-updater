@@ -1,5 +1,7 @@
 #include "extract.hpp"
 #include <tuple>
+#include <algorithm>
+#include <switch.h>
 
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId){
@@ -26,30 +28,14 @@ std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId)
     return titles;
 }
 
-/*
-std::vector<std::string> getInstalledTitlesNs(){
-    std::vector<std::string> titles;
-    NsApplicationRecord *records = new NsApplicationRecord[MaxTitleCount]();
-    s32 total = 0;
-    Result rc = nsListApplicationRecord(records, MaxTitleCount, 0, &total);
-    if (R_SUCCEEDED(rc)){
-        for (s32 i = 0; i < total; i++){
-            titles.push_back(formatApplicationId(records[i].application_id));
-        }
-    }
-    delete[] records;
-    std::sort(titles.begin(), titles.end());
-    return titles;
-}
-*/
-std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNs(){
+std::vector<Title> getInstalledTitlesNs(){
     // This function has been cobbled together from the "app_controldata" example in devkitpro.
 
     // Set the rc variable to begin with
     Result rc = 0;
 
     // Initialise a vector of tuples, storing the title ID and the title name.
-    std::vector<std::tuple<std::string, std::string>> titles;
+    std::vector<Title> titles;
 
     // Initialise an application record array, where the size is MaxTitleCount
     NsApplicationRecord *recs = new NsApplicationRecord[MaxTitleCount]();
@@ -117,7 +103,7 @@ std::vector<std::tuple<std::string, std::string>> getInstalledTitlesNs(){
             if (R_SUCCEEDED(rc)) {
                 memset(name, 0, sizeof(name));
                 strncpy(name, langentry->name, sizeof(name)-1); //Don't assume the nacp string is NUL-terminated for safety.
-                titles.push_back(std::make_tuple(formatApplicationId(recs[i].application_id), name));
+                titles.push_back({formatApplicationId(recs[i].application_id), name});
             }
 
             nsExit();
@@ -138,62 +124,58 @@ std::string formatApplicationId(u64 ApplicationId){
     return strm.str();
 }
 
-std::vector<std::tuple<std::string, std::string>> excludeTitles(const char* path, std::vector<std::tuple<std::string, std::string>> listedTitles){
-    std::vector<std::tuple<std::string, std::string>> titles;
+std::vector<Title> excludeTitles(const char* path, std::vector<Title> listedTitles){
+    std::vector<Title> titles;
     std::ifstream file(path);
+    int total = 0;
+    std::string name;
     if (file.is_open()) {
         std::string line;
         while (std::getline(file, line)) {
+            name = "No name provided";
             std::transform(line.begin(), line.end(), line.begin(), ::toupper);
-            titles.push_back(std::make_tuple(line, "No name provided"));
+            for(int i = 0; i < (int)listedTitles.size(); i++) {
+                if(listedTitles.at(i).id == line) {
+                    name = listedTitles.at(i).name;
+                    break;
+                }
+            }
+            titles.push_back({line, name});
+            total++;
         }
         file.close();
     }
 
     std::sort(titles.begin(), titles.end());
-    std::vector<std::tuple<std::string, std::string>> diff;
 
-    std::set_difference(listedTitles.begin(), listedTitles.end(), titles.begin(), titles.end(), 
-                         std::inserter(diff, diff.begin()), isExcluded);
-    return diff;
-}
+    if (total > 0)
+        std::cout << "Found " << total << " titles to exclude: " << std::endl;
 
-bool isExcluded(std::tuple<std::string, std::string> t1, std::tuple<std::string, std::string> t2) {
-    if((std::get<0>(t1)).compare(std::get<0>(t2)) == 0)
-        return true;
-    else {
-        return false;
+    for(int t = 0; t < (int)titles.size(); t++) {
+        std::cout << "Title ID: " << titles.at(t).id << " Title Name: " << titles.at(t).name << std::endl;
     }
-}
-/*
-std::vector<std::string> excludeTitles(const char* path, std::vector<std::string> listedTitles){
-    std::vector<std::string> titles;
-    std::ifstream file(path);
-    if (file.is_open()) {
-        std::string line;
-        while (std::getline(file, line)) {
-            std::transform(line.begin(), line.end(), line.begin(), ::toupper);
-            titles.push_back(line);
-        }
-        file.close();
-    }
+    std::cout << std::endl << std::endl;
 
-    std::sort(titles.begin(), titles.end());
-    std::vector<std::string> diff;
+    std::vector<Title> diff;
+
     std::set_difference(listedTitles.begin(), listedTitles.end(), titles.begin(), titles.end(), 
                          std::inserter(diff, diff.begin()));
     return diff;
 }
-*/
+
 bool caselessCompare (const std::string& a, const std::string& b){
     return strcasecmp(a.c_str(), b.c_str()) < 0;
 }
 
-int extractCheats(std::string zipPath, std::vector<std::tuple<std::string, std::string>> titles, bool sxos, bool credits){
+int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, bool credits){
+
+    hidScanInput();
+
+    u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 
     zipper::Unzipper unzipper(zipPath);
     std::vector<zipper::ZipEntry> entries = unzipper.entries();
-
+    std::vector<Title> extractedTitles;
     int offset;
     if(sxos){
         offset = std::string(TITLES_PATH).length();
@@ -244,13 +226,38 @@ int extractCheats(std::string zipPath, std::vector<std::tuple<std::string, std::
 
     int count = 0;
     size_t lastL = 0;
+    std::string name;
+    std::string id;
+    bool alreadyExtractedTitle;
     for(size_t j = 0; j < titles.size(); j++){
         for(size_t l = lastL; l < parents.size(); l++){
-            if(strcasecmp(std::get<0>(titles.at(j)).c_str(), parents[l].substr(offset, 16).c_str()) == 0){
+            if(strcasecmp((titles.at(j).id).c_str(), parents[l].substr(offset, 16).c_str()) == 0){
                 unzipper.extractEntry(parents[l]);
                 for(auto& e : children[l]){
                     unzipper.extractEntry(e);
                     std::cout << std::setfill(' ') << std::setw(80) << '\r';
+
+                    name = "No name retrieved.";
+                    id = e.substr(7, 16);
+                    std::transform(id.begin(), id.end(), id.begin(), ::toupper);
+
+                    for(int i = 0; i < (int)titles.size(); i++) {
+                        if(titles.at(i).id == id) {
+                            name = titles.at(i).name;
+                            break;
+                        }
+                    }
+
+                    alreadyExtractedTitle = false;
+                    for(int i = 0; i < (int)extractedTitles.size(); i++) {
+                        if(extractedTitles.at(i).id == id) {
+                            alreadyExtractedTitle = true;
+                            break;
+                        }
+                    }
+                    if(!alreadyExtractedTitle)
+                        extractedTitles.push_back({id, name});
+
                     std::cout << e.substr(0, 79) << "\r";
                     count++;
                     consoleUpdate(NULL);
@@ -262,6 +269,19 @@ int extractCheats(std::string zipPath, std::vector<std::tuple<std::string, std::
     }
     std::cout << std::endl;
 
+    /*std::cout << "\nPress [Y] to view games that were updated." << std::endl;
+    if (kDown & KEY_Y) {
+        std::cout << "Updated Titles:" << std::endl;
+        for(int t = 0; t < (int)extractedTitles.size(); t++) {
+            std::cout << "Title ID: " << extractedTitles.at(t).id << " Title Name: " << extractedTitles.at(t).name << std::endl;
+        }
+        std::cout << std::endl;
+    }*/
+    std::cout << "\nUpdated Titles (" << (int)extractedTitles.size() << "):" << std::endl;
+    for(int t = 0; t < (int)extractedTitles.size(); t++) {
+        std::cout << "Title ID: " << extractedTitles.at(t).id << " Title Name: " << extractedTitles.at(t).name << std::endl;
+    }
+    std::cout << std::endl;
     unzipper.close();
     return count;
 }
@@ -271,8 +291,7 @@ int removeCheats(bool sxos){
     if(sxos){
         path = std::string(SXOS_PATH) + std::string(TITLES_PATH);
         std::filesystem::remove("./titles.zip");
-    }
-    else{
+    } else {
         path = std::string(AMS_PATH) + std::string(CONTENTS_PATH);
         std::filesystem::remove("./contents.zip");
     }

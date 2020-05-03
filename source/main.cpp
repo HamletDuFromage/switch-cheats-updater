@@ -78,17 +78,18 @@ void run(){
     std::filesystem::create_directory("/config");
     std::filesystem::create_directory("/config/cheats-updater");
 
-    std::vector<std::tuple<std::string, std::string>> titles;
+    std::vector<Title> titles;
 
     titles = getInstalledTitlesNs();
-    int total = titles.size();
-    std::cout << "Found " << total << " installed titles" << std::endl;
 
     titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
-    if((int) titles.size() != total)
-        std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
+
     std::cout << std::endl;
-    
+
+    int total = titles.size();
+
+    std::cout << "Found " << total << " installed titles" << std::endl;
+
     consoleUpdate(NULL);
 
     std::string ver = fetchVersion(RELEASE_URL, "1100-1110");
@@ -125,42 +126,23 @@ void cleanUp(){
     std::cout << "Removed " << c << " cheat files" << std::endl;
 }
 
-/*
 void viewTitles() {
-    std::vector<std::string> titles;
+    std::vector<Title> titles;
 
     titles = getInstalledTitlesNs();
-    int total = titles.size();
-    std::cout << "Found " << total << " installed titles" << std::endl;
 
     titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
-    if((int) titles.size() != total)
-        std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
     std::cout << std::endl;
 
-    std::cout << "Titles (Minus Exceptions)" << std::endl;
-    for(int t = 0; t < (int)titles.size(); t++) {
-        std::cout << "Title ID: " << titles.at(t) << std::endl;
-    }
-    std::cout << std::endl;
-}*/
-
-void viewTitles() {
-    std::vector<std::tuple<std::string, std::string>> titles;
-
-    titles = getInstalledTitlesNs();
     int total = titles.size();
+
     std::cout << "Found " << total << " installed titles" << std::endl;
 
-    titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
-    if((int) titles.size() != total)
-        std::cout << "Found " << total - titles.size() << " titles to exclude" << std::endl;
-    std::cout << std::endl;
-
-    for(int t = 0; t < (int)titles.size(); t++) {
-        std::cout << "Title ID: " << std::get<0>(titles.at(t)) << " Title Name: " << std::get<1>(titles.at(t)) << std::endl;
+    for(int t = 0; t < total; t++) {
+        std::cout << "Title ID: " << titles.at(t).id << " Title Name: " << titles.at(t).name << std::endl;
     }
     std::cout << std::endl;
+    
 }
 
 void viewMain() {
@@ -180,31 +162,6 @@ void viewMain() {
     std::cout << "Press [+] to quit" << std::endl << std::endl;
 
     consoleUpdate(NULL);
-}
-
-void testStruct() {
-    std::vector<Title> t;
-    std::vector<Title> e;
-    //std::vector<Title>::iterator it, ls;
-
-    t.push_back({"1", "Test 1"});
-    t.push_back({"2", "Test 2"});
-    t.push_back({"3", "Test 2"});
-    t.push_back({"4", "Test 2"});
-
-    e.push_back({"1", "Test 1"});
-    e.push_back({"4", "Test 2"});
-
-    std::sort(t.begin(), t.end());
-    std::sort(e.begin(), e.end());
-    
-    std::vector<Title> diff;
-    std::set_difference(t.begin(), t.end(), e.begin(), e.end(), std::inserter(diff, diff.begin()));
-
-    std::cout << "Difference titles:\n";
-    for (int i = 0 ; i < (int)diff.size(); i++) {
-        std::cout << "ID: " << diff.at(i).id << "\tName: " << diff.at(i).name << std::endl;
-    }
 }
 
 int main(int argc, char* argv[])
@@ -263,16 +220,6 @@ int main(int argc, char* argv[])
             }
         }
 
-        if (kDown & KEY_Y){
-            if(!done){
-                testStruct();
-                done = true;
-                std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
-                std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
-                consoleUpdate(NULL);
-
-            }
-        }
         if (kDown & KEY_PLUS)
             break; 
     }
