@@ -8,7 +8,7 @@
 
 #include <switch.h>
 
-#define VERSION "1.1.6"
+#define VERSION "1.1.7"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -67,6 +67,7 @@ void run(){
     std::string filename;
     if(sxos){
         filename = "titles.zip";
+        std::filesystem::create_directory("/sxos");
         std::filesystem::create_directory("/sxos/titles");
     }
     else{
