@@ -19,6 +19,7 @@
 
 #include <unzipper.h>
 #include "title.h"
+#include "titles.hpp"
 
 #define CONTENTS_PATH "contents/"
 #define TITLES_PATH "titles/"
@@ -32,8 +33,6 @@ std::vector<Title> getInstalledTitlesNs();
 std::string formatApplicationId(u64 ApplicationId);
 
 std::vector<Title> excludeTitles(const char* path, std::vector<Title> listedTitles);
-
-//bool isExcluded (Title t1, Title t2);
 
 int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, bool credits);
 

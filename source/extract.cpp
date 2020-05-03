@@ -1,8 +1,4 @@
 #include "extract.hpp"
-#include <tuple>
-#include <algorithm>
-#include <switch.h>
-
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId){
     std::vector<std::string> titles;
@@ -168,11 +164,6 @@ bool caselessCompare (const std::string& a, const std::string& b){
 }
 
 int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, bool credits){
-
-    hidScanInput();
-
-    u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-
     zipper::Unzipper unzipper(zipPath);
     std::vector<zipper::ZipEntry> entries = unzipper.entries();
     std::vector<Title> extractedTitles;
@@ -269,19 +260,8 @@ int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, boo
     }
     std::cout << std::endl;
 
-    /*std::cout << "\nPress [Y] to view games that were updated." << std::endl;
-    if (kDown & KEY_Y) {
-        std::cout << "Updated Titles:" << std::endl;
-        for(int t = 0; t < (int)extractedTitles.size(); t++) {
-            std::cout << "Title ID: " << extractedTitles.at(t).id << " Title Name: " << extractedTitles.at(t).name << std::endl;
-        }
-        std::cout << std::endl;
-    }*/
-    std::cout << "\nUpdated Titles (" << (int)extractedTitles.size() << "):" << std::endl;
-    for(int t = 0; t < (int)extractedTitles.size(); t++) {
-        std::cout << "Title ID: " << extractedTitles.at(t).id << " Title Name: " << extractedTitles.at(t).name << std::endl;
-    }
-    std::cout << std::endl;
+    writeTitlesToFile(extractedTitles);
+
     unzipper.close();
     return count;
 }

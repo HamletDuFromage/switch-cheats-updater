@@ -9,6 +9,7 @@
 
 #include "extract.hpp"
 #include "download.hpp"
+#include "titles.hpp"
 
 #define VERSION "1.1.7"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
@@ -61,7 +62,7 @@ bool isServiceRunning(const char *serviceName) {
   return running;
 }
 
-void run(){    
+bool run(){    
 
     bool sxos = !(isServiceRunning("dmnt:cht") && !(isServiceRunning("tx") && !isServiceRunning("rnx")));
     u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
@@ -117,6 +118,13 @@ void run(){
         }
     }
     consoleUpdate(NULL);
+
+    // If the versions are the same, return false (indicating that the files were not updated)
+    // Otherwise, return true (indicating that they were updated)
+    if(ver == oldVersion) 
+        return false;
+    else
+        return true;
 }
 
 void cleanUp(){
@@ -180,8 +188,16 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_A){
             if(!done){
-                run();
+                bool updated = run();
                 done = true;
+
+                if(updated) {
+                    std::cout << "\nPress [Y] to view updated files." << std::endl;
+                    if (kDown & KEY_Y) {
+                        outputUpdatedTitles();
+                    }
+                }
+                outputUpdatedTitles();
                 std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
                 consoleUpdate(NULL);
