@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
     viewMain();
 
     bool done = false;
-
+    bool updated = false;
     while (appletMainLoop())
     {
         hidScanInput();
@@ -188,16 +188,12 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_A){
             if(!done){
-                bool updated = run();
+                updated = run();
                 done = true;
 
                 if(updated) {
-                    std::cout << "\nPress [Y] to view updated files." << std::endl;
-                    if (kDown & KEY_Y) {
-                        outputUpdatedTitles();
-                    }
+                    std::cout << "\nPress [Y] to view updated files.\n" << std::endl;
                 }
-                outputUpdatedTitles();
                 std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
                 consoleUpdate(NULL);
@@ -208,6 +204,7 @@ int main(int argc, char* argv[])
         if (kDown & KEY_X){
             if(!done){
                 cleanUp();
+                updated = false;
                 done = true;
                 std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
@@ -219,6 +216,7 @@ int main(int argc, char* argv[])
         if (kDown & KEY_B){
             if(!done){
                 viewTitles();
+                updated = false;
                 done = true;
                 std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
@@ -229,13 +227,20 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_MINUS) {
             if(done) {
+                updated = false;
                 //std::cout << std::string( 40, '\n' );
                 viewMain();
                 done = false;
                 consoleUpdate(NULL);
             }
         }
-
+        if (kDown & KEY_Y) {
+            if(updated) {
+                outputUpdatedTitles();
+                consoleUpdate(NULL);
+                updated = false;
+            }
+        }
         if (kDown & KEY_PLUS)
             break; 
     }
