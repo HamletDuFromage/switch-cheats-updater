@@ -181,6 +181,32 @@ void viewMain() {
 
     consoleUpdate(NULL);
 }
+
+void testStruct() {
+    std::vector<Title> t;
+    std::vector<Title> e;
+    //std::vector<Title>::iterator it, ls;
+
+    t.push_back({"1", "Test 1"});
+    t.push_back({"2", "Test 2"});
+    t.push_back({"3", "Test 2"});
+    t.push_back({"4", "Test 2"});
+
+    e.push_back({"1", "Test 1"});
+    e.push_back({"4", "Test 2"});
+
+    std::sort(t.begin(), t.end());
+    std::sort(e.begin(), e.end());
+    
+    std::vector<Title> diff;
+    std::set_difference(t.begin(), t.end(), e.begin(), e.end(), std::inserter(diff, diff.begin()));
+
+    std::cout << "Difference titles:\n";
+    for (int i = 0 ; i < (int)diff.size(); i++) {
+        std::cout << "ID: " << diff.at(i).id << "\tName: " << diff.at(i).name << std::endl;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     initServices();
@@ -227,12 +253,24 @@ int main(int argc, char* argv[])
 
             }
         }
+
         if (kDown & KEY_MINUS) {
             if(done) {
                 //std::cout << std::string( 40, '\n' );
                 viewMain();
                 done = false;
                 consoleUpdate(NULL);
+            }
+        }
+
+        if (kDown & KEY_Y){
+            if(!done){
+                testStruct();
+                done = true;
+                std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
+                std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
+                consoleUpdate(NULL);
+
             }
         }
         if (kDown & KEY_PLUS)

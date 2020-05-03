@@ -159,7 +159,11 @@ std::vector<std::tuple<std::string, std::string>> excludeTitles(const char* path
 }
 
 bool isExcluded(std::tuple<std::string, std::string> t1, std::tuple<std::string, std::string> t2) {
-    return (std::get<0>(t1) == std::get<0>(t2));
+    if((std::get<0>(t1)).compare(std::get<0>(t2)) == 0)
+        return true;
+    else {
+        return false;
+    }
 }
 /*
 std::vector<std::string> excludeTitles(const char* path, std::vector<std::string> listedTitles){
