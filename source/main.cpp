@@ -11,7 +11,7 @@
 #include "download.hpp"
 #include "titles.hpp"
 
-#define VERSION "1.1.7"
+#define VERSION "1.1.8"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -154,6 +154,10 @@ void viewTitles() {
     std::cout << "\033[0;32m" << "Found " << total << " installed titles" << "\033[0m" << std::endl << std::endl;
 
     for(int t = 0; t < total; t++) {
+        if(titles.at(t).name.size() > 35) {
+            titles.at(t).name = titles.at(t).name.substr(0, 35);
+            titles.at(t).name.append("...");
+        }
         std::cout << "\033[1;37m" << "Title ID: " << "\033[0m" << titles.at(t).id << "\033[1;37m" << " Title Name: " << "\033[0m" << titles.at(t).name << std::endl;
     }
     std::cout << std::endl;
@@ -195,6 +199,7 @@ int main(int argc, char* argv[])
 
     bool done = false;
     bool updated = false;
+    bool deleteCheatsConfirm = false;
     while (appletMainLoop())
     {
         hidScanInput();
@@ -202,33 +207,45 @@ int main(int argc, char* argv[])
         u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 
         if (kDown & KEY_A){
-            if(!done){
-                clearConsole();
-                viewHeader();
-                updated = run();
-                done = true;
+            if(!deleteCheatsConfirm) {
+                if(!done) {
+                    clearConsole();
+                    viewHeader();
+                    updated = run();
+                    done = true;
 
-                if(updated) {
-                    std::cout << "\nPress [Y] to view updated files.\n" << std::endl;
+                    if(updated) {
+                        std::cout << "\nPress [Y] to view updated files.\n" << std::endl;
+                    }
+                    std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
+                    std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
+                    consoleUpdate(NULL);
+
                 }
-                std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
-                std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
-                consoleUpdate(NULL);
-
-            }
-        } 
-
-        if (kDown & KEY_X){
-            if(!done){
+            } else {
                 clearConsole();
                 viewHeader();
                 cleanUp();
                 updated = false;
                 done = true;
+                deleteCheatsConfirm = false;
                 std::cout << "\033[7;37m"<< "\nPress [-] to return to main menu" << "\033[0m" <<std::endl;
                 std::cout << "\033[7;37m"<< "\nPress [+] to quit" << "\033[0m" <<std::endl;
                 consoleUpdate(NULL);
+            }
+            
+        } 
 
+        if (kDown & KEY_X){
+            if(!done) {
+                deleteCheatsConfirm = true;
+                clearConsole();
+                viewHeader();
+                std::cout << "\033[1;31m" << "Are you sure? this will delete every cheat from your /titles/ folder." << std::endl;
+                std::cout << "Press [A] to delete ALL existing cheat files" << std::endl;
+                std::cout << "Press [-] to return to main menu and abort" << "\033[0m" <<std::endl;
+                done = true;
+                consoleUpdate(NULL);
             }
         }
 
@@ -248,10 +265,11 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_MINUS) {
             if(done) {
-                updated = false;
                 clearConsole();
                 viewMain();
+                updated = false;
                 done = false;
+                deleteCheatsConfirm = false;
                 consoleUpdate(NULL);
             }
         }
