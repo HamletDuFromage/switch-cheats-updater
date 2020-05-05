@@ -36,6 +36,6 @@ void outputUpdatedTitles() {
     std::vector<Title> titles = readTitlesFromFile();
 
     for(int i = 0; i < (int)titles.size(); i++) {
-        std::cout << "Title ID: " << titles.at(i).id << " Title Name: " << titles.at(i).name << std::endl;
+        std::cout << "\033[1;37m" << "Title ID: " << "\033[0m" << titles.at(i).id << "\033[1;37m" << " Title Name: " << "\033[0m" << titles.at(i).name << std::endl;
     }
 }

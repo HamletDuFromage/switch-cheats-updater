@@ -15,6 +15,8 @@
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
+#define WIDTH 80 // The width of the console
+#define HEIGHT 45 // Height of the console
 
 
 void initServices(){
@@ -179,6 +181,12 @@ void viewMain() {
     consoleUpdate(NULL);
 }
 
+void clearConsole() {
+    consoleClear();
+    //consoleSetWindow(NULL, 0, 0, WIDTH, HEIGHT);
+    consoleUpdate(NULL);
+}
+
 int main(int argc, char* argv[])
 {
     initServices();
@@ -195,7 +203,7 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_A){
             if(!done){
-                consoleClear();
+                clearConsole();
                 viewHeader();
                 updated = run();
                 done = true;
@@ -212,7 +220,7 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_X){
             if(!done){
-                consoleClear();
+                clearConsole();
                 viewHeader();
                 cleanUp();
                 updated = false;
@@ -226,7 +234,7 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_B){
             if(!done){
-                consoleClear();
+                clearConsole();
                 viewHeader();
                 viewTitles();
                 updated = false;
@@ -241,7 +249,7 @@ int main(int argc, char* argv[])
         if (kDown & KEY_MINUS) {
             if(done) {
                 updated = false;
-                consoleClear();
+                clearConsole();
                 viewMain();
                 done = false;
                 consoleUpdate(NULL);
@@ -249,13 +257,14 @@ int main(int argc, char* argv[])
         }
         if (kDown & KEY_Y) {
             if(updated) {
-                consoleClear();
+                clearConsole();
                 viewHeader();
                 outputUpdatedTitles();
                 consoleUpdate(NULL);
                 updated = false;
             }
         }
+
         if (kDown & KEY_PLUS)
             break; 
     }
