@@ -70,10 +70,12 @@ bool run(){
     std::string filename;
     if(sxos){
         filename = "titles.zip";
+        std::filesystem::create_directory("/sxos");
         std::filesystem::create_directory("/sxos/titles");
     }
     else{
         filename = "contents.zip";
+        std::filesystem::create_directory("/atmosphere");
         std::filesystem::create_directory("/atmosphere/contents");
     }
     std::filesystem::create_directory("/config");
@@ -85,19 +87,22 @@ bool run(){
 
     titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
     int total = titles.size();
 
-    std::cout << "Found " << total << " installed titles" << std::endl;
+    std::cout << "\033[0;32m" << "Found " << total << " installed titles" << "\033[0m" << std::endl << std::endl;
 
     consoleUpdate(NULL);
 
     std::string ver = fetchVersion(RELEASE_URL, "1100-1110");
     std::string oldVersion = readVersion("version.dat");
-    if(sxos) std::cout << "Current cheats revision: v" << oldVersion << ", latest v" << ver << " for SXOS" <<std::endl;
-    else std::cout << "Current cheats revision: v" << oldVersion << ", latest v" << ver << " for AMS" <<std::endl;
+
+    std::cout << "Current cheats revision: v" << "\033[31m" << oldVersion << "\033[0m" << "\nLatest cheats revision: v" << "\033[0;32m" << ver << "\033[0m";
+    if(sxos) std::cout << " for SXOS" << std::endl;
+    else std::cout << " for AMS" << std::endl;
     std::cout << std::endl;
+
     if(ver == oldVersion){
         std::cout << "Already up to date. There's nothing else to do." << std::endl;
     }
@@ -140,24 +145,27 @@ void viewTitles() {
     titles = getInstalledTitlesNs();
 
     titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
     int total = titles.size();
 
-    std::cout << "Found " << total << " installed titles" << std::endl;
+    std::cout << "\033[0;32m" << "Found " << total << " installed titles" << "\033[0m" << std::endl << std::endl;
 
     for(int t = 0; t < total; t++) {
-        std::cout << "Title ID: " << titles.at(t).id << " Title Name: " << titles.at(t).name << std::endl;
+        std::cout << "\033[1;37m" << "Title ID: " << "\033[0m" << titles.at(t).id << "\033[1;37m" << " Title Name: " << "\033[0m" << titles.at(t).name << std::endl;
     }
     std::cout << std::endl;
     
 }
 
-void viewMain() {
+void viewHeader() {
     std::cout << "\033[31m" << "================================================================================" << "\033[0m" << std::endl;
     std::cout << "\033[1;31m" << "Cheats Updater v" << VERSION << " by HamletDuFromage & Acta" << "\033[0m" <<std::endl;
     std::cout << "\033[31m" << "================================================================================" << "\033[0m" << std::endl;
     std::cout << std::endl;
+}
+void viewMain() {
+    viewHeader();
 
     std::cout << "\033[36m" << "Title ids listed in \"/config/cheats-updater/exclude.txt\" won't get cheat updates" << "\033[0m" << std::endl;
 
@@ -165,7 +173,6 @@ void viewMain() {
     std::cout << "Press [B] to view installed titles" << std::endl;
     std::cout << "Hold  [L] and press [A] to also download cheat credits and instructions" << std::endl;
     std::cout << "Press [X] to delete ALL existing cheat files\n" << std::endl;
-
 
     std::cout << "Press [+] to quit" << std::endl << std::endl;
 
@@ -188,6 +195,8 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_A){
             if(!done){
+                consoleClear();
+                viewHeader();
                 updated = run();
                 done = true;
 
@@ -203,6 +212,8 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_X){
             if(!done){
+                consoleClear();
+                viewHeader();
                 cleanUp();
                 updated = false;
                 done = true;
@@ -215,6 +226,8 @@ int main(int argc, char* argv[])
 
         if (kDown & KEY_B){
             if(!done){
+                consoleClear();
+                viewHeader();
                 viewTitles();
                 updated = false;
                 done = true;
@@ -228,7 +241,7 @@ int main(int argc, char* argv[])
         if (kDown & KEY_MINUS) {
             if(done) {
                 updated = false;
-                //std::cout << std::string( 40, '\n' );
+                consoleClear();
                 viewMain();
                 done = false;
                 consoleUpdate(NULL);
@@ -236,6 +249,8 @@ int main(int argc, char* argv[])
         }
         if (kDown & KEY_Y) {
             if(updated) {
+                consoleClear();
+                viewHeader();
                 outputUpdatedTitles();
                 consoleUpdate(NULL);
                 updated = false;
