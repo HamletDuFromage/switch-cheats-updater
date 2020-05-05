@@ -153,13 +153,8 @@ void viewTitles() {
 
     std::cout << "\033[0;32m" << "Found " << total << " installed titles" << "\033[0m" << std::endl << std::endl;
 
-    for(int t = 0; t < total; t++) {
-        if(titles.at(t).name.size() > 35) {
-            titles.at(t).name = titles.at(t).name.substr(0, 35);
-            titles.at(t).name.append("...");
-        }
-        std::cout << "\033[1;37m" << "Title ID: " << "\033[0m" << titles.at(t).id << "\033[1;37m" << " Title Name: " << "\033[0m" << titles.at(t).name << std::endl;
-    }
+    printTitles(titles);
+    
     std::cout << std::endl;
     
 }

@@ -16,4 +16,8 @@ void writeTitlesToFile(std::vector<Title> titles);
 
 std::vector<Title> readTitlesFromFile();
 
+void outputUpdatedTitles();
+
+void printTitles(std::vector<Title> titles);
+
 #endif

@@ -121,39 +121,53 @@ std::string formatApplicationId(u64 ApplicationId){
 }
 
 std::vector<Title> excludeTitles(const char* path, std::vector<Title> listedTitles){
+    // Initialise a vector of titles
     std::vector<Title> titles;
+    // Open a file stream
     std::ifstream file(path);
+    // Declare a total variable and set to 0
     int total = 0;
+    // Declare a name variable
     std::string name;
+
+
     if (file.is_open()) {
         std::string line;
+        // Read each line of the file in
         while (std::getline(file, line)) {
             name = "No name provided";
+            // Change the line to uppercase
             std::transform(line.begin(), line.end(), line.begin(), ::toupper);
+
             for(int i = 0; i < (int)listedTitles.size(); i++) {
+                // Iterate through the listedTitles, and compare the id's in the file, to the installed title ids
+                // When a match is found, it sets the name of the excluded title to the name of the installed title
                 if(listedTitles.at(i).id == line) {
                     name = listedTitles.at(i).name;
                     break;
                 }
             }
+            // Push a new title to the titles vector and increment the total number of excluded titles
             titles.push_back({line, name});
             total++;
         }
+        // Close the file
         file.close();
     }
 
+    // Sort the titles list (uses an overloaded < operator to sort based on ID's)
     std::sort(titles.begin(), titles.end());
 
     if (total > 0)
         std::cout << "Found " << total << " titles to exclude: " << std::endl;
 
-    for(int t = 0; t < (int)titles.size(); t++) {
-        std::cout << "Title ID: " << titles.at(t).id << " Title Name: " << titles.at(t).name << std::endl;
-    }
+    printTitles(titles);
+
     std::cout << std::endl << std::endl;
 
+    // Create a vector to store the difference between the excluded titles list, and the installed title list
     std::vector<Title> diff;
-
+    // Populate the difference vector
     std::set_difference(listedTitles.begin(), listedTitles.end(), titles.begin(), titles.end(), 
                          std::inserter(diff, diff.begin()));
     return diff;
