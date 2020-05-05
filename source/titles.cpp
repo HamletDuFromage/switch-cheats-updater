@@ -1,5 +1,10 @@
 #include "titles.hpp"
 
+/**
+ * writeTitlesToFile
+ * Writes the input vector to the updated.dat file in config
+ * Stores the id and name of each title seprated by a comma
+**/
 void writeTitlesToFile(std::vector<Title> titles) {
     std::ofstream updatedTitlesFile;
     updatedTitlesFile.open(UPDATED_TITLES_PATH, std::ofstream::out | std::ofstream::trunc);
@@ -11,6 +16,11 @@ void writeTitlesToFile(std::vector<Title> titles) {
     }
 }
 
+/**
+ * readTitlesFromFile
+ * Reads titles from the updated.dat file in config
+ * Stores them as a new titles vector, and returns this to the function calling.
+**/
 std::vector<Title> readTitlesFromFile() {
     std::ifstream updatedTitlesFile;
     updatedTitlesFile.open(UPDATED_TITLES_PATH);
@@ -32,6 +42,10 @@ std::vector<Title> readTitlesFromFile() {
     return titles;
 }
 
+/**
+ * outputUpdatedTitles
+ * Displays the contents of the updated.dat file in /config/
+**/
 void outputUpdatedTitles() {
     std::vector<Title> titles = readTitlesFromFile();
     std::cout << "Updated Titles:" << std::endl << std::endl;
