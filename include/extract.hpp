@@ -18,6 +18,8 @@
 #include <unistd.h>
 
 #include <unzipper.h>
+#include "title.h"
+#include "titles.hpp"
 
 #define CONTENTS_PATH "contents/"
 #define TITLES_PATH "titles/"
@@ -26,13 +28,13 @@
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId);
 
-std::vector<std::string> getInstalledTitlesNs();
+std::vector<Title> getInstalledTitlesNs();
 
 std::string formatApplicationId(u64 ApplicationId);
 
-std::vector<std::string> excludeTitles(const char* path, std::vector<std::string>);
+std::vector<Title> excludeTitles(const char* path, std::vector<Title> listedTitles);
 
-int extractCheats(std::string zipPath, std::vector<std::string> titles, bool sxos, bool credits);
+int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, bool credits);
 
 int removeCheats(bool sxos);
 
