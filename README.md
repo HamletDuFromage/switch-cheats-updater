@@ -4,7 +4,7 @@
 <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/HamletDuFromage/switch-cheats-updater/total">
 </p>
 
-A Nintendo Switch homebrew app to automatically update your cheat files for your installed games, gamecarts and XCIs. Supports Atmosphere and SXOS.
+A Nintendo Switch homebrew app to automatically update your cheat files for your installed games, gamecarts and XCIs. Supports Atmosphere, ReiNX and SXOS.
 
 
 Fetches the latest cheats from the [gbatemp general thread](https://gbatemp.net/download/cheat-codes-sxos-and-ams-main-cheat-file-updated.36311/updates) through [my mirror](https://github.com/HamletDuFromage/switch-cheats-db/releases) (updates once a day)

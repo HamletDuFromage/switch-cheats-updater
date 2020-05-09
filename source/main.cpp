@@ -11,7 +11,7 @@
 #include "download.hpp"
 #include "titles.hpp"
 
-#define VERSION "1.2.0"
+#define VERSION "1.2.1"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -36,8 +36,8 @@ void exitServices(){
 std::string readVersion(std::string path){
     std::fstream versionFile;
     std::string version = "0";
-    if(std::filesystem::exists("/config/cheats-updater/" + path)){
-        versionFile.open("/config/cheats-updater/" + path, std::fstream::in);
+    if(std::filesystem::exists(CONFIG_PATH + path)){
+        versionFile.open(CONFIG_PATH + path, std::fstream::in);
         versionFile >> version;
         versionFile.close();
     }
@@ -46,7 +46,7 @@ std::string readVersion(std::string path){
 
 void saveVersion(std::string path, std::string version){
     std::fstream newVersion;
-    newVersion.open("/config/cheats-updater/" + path, std::fstream::out | std::fstream::trunc);
+    newVersion.open(CONFIG_PATH + path, std::fstream::out | std::fstream::trunc);
     newVersion << version << std::endl;
     newVersion.close();
 }
@@ -64,30 +64,41 @@ bool isServiceRunning(const char *serviceName) {
   return running;
 }
 
+CFW getCFW(){
+    if(isServiceRunning("rnx"))         return rnx;
+    else if(isServiceRunning("tx"))     return sxos;
+    else                                return ams;
+}
+
 bool run(){    
 
-    bool sxos = !(isServiceRunning("dmnt:cht") && !(isServiceRunning("tx") && !isServiceRunning("rnx")));
+    int cfw = getCFW();
     u64 kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
     bool credits = kHeld & KEY_L;
-    std::string filename;
-    if(sxos){
-        filename = "titles.zip";
-        std::filesystem::create_directory("/sxos");
-        std::filesystem::create_directory("/sxos/titles");
+    std::string filename = "";
+        switch(cfw){
+            case ams:
+                filename = "contents.zip";
+                std::filesystem::create_directory("/atmosphere");
+                std::filesystem::create_directory("/atmosphere/contents");
+                break;
+            case rnx:
+                filename = "contents.zip";
+                std::filesystem::create_directory("/ReiNX");
+                std::filesystem::create_directory("/ReiNX/contents");
+                break;
+            case sxos:
+                filename = "titles.zip";
+                std::filesystem::create_directory("/sxos");
+                std::filesystem::create_directory("/sxos/titles");
+                break;
     }
-    else{
-        filename = "contents.zip";
-        std::filesystem::create_directory("/atmosphere");
-        std::filesystem::create_directory("/atmosphere/contents");
-    }
-    std::filesystem::create_directory("/config");
-    std::filesystem::create_directory("/config/cheats-updater");
 
     std::vector<Title> titles;
 
     titles = getInstalledTitlesNs();
 
-    titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
+    titles = excludeTitles((std::string(CONFIG_PATH) + "exclude.txt").c_str(), titles);
 
     //std::cout << std::endl;
 
@@ -101,8 +112,17 @@ bool run(){
     std::string oldVersion = readVersion("version.dat");
 
     std::cout << "Current cheats revision: v" << "\033[31m" << oldVersion << "\033[0m" << "\nLatest cheats revision: v" << "\033[0;32m" << ver << "\033[0m";
-    if(sxos) std::cout << " for SXOS" << std::endl;
-    else std::cout << " for AMS" << std::endl;
+    switch(cfw){
+        case ams : 
+            std::cout << " for AMS" << std::endl;
+            break;
+        case rnx : 
+            std::cout << " for ReiNX" << std::endl;
+            break;
+        case sxos :
+            std::cout << " for SXOS" << std::endl;
+            break;
+    }
     std::cout << std::endl;
 
     if(ver == oldVersion){
@@ -114,10 +134,10 @@ bool run(){
     else{
         std::cout << "Downloading v" << ver << "..." << std::endl;
         std::string url = std::string(ARCHIVE_URL) + filename;
-        if(downloadFile(url.c_str(), filename.c_str(), OFF)){
+        std::string path = std::string(CONFIG_PATH) + filename;
+        if(downloadFile(url.c_str(), path.c_str(), OFF)){
         //if(false){
-            int upd = extractCheats(filename.c_str(), titles, sxos, credits);
-            std::cout << "Successfully extacted " << upd << " cheat files" << std::endl;
+            extractCheats(path.c_str(), titles, cfw, credits);
             saveVersion("version.dat", ver);
         }
         else{
@@ -135,8 +155,8 @@ bool run(){
 }
 
 void cleanUp(){
-    bool sxos = !(isServiceRunning("dmnt:cht") && !(isServiceRunning("tx") && !isServiceRunning("rnx")));
-    int c = removeCheats(sxos);
+    int cfw = getCFW();
+    int c = removeCheats(cfw);
     saveVersion("version.dat", "0");
     std::cout << "Removed " << c << " cheat files" << std::endl;
 }
@@ -146,7 +166,7 @@ void viewTitles() {
 
     titles = getInstalledTitlesNs();
 
-    titles = excludeTitles("/config/cheats-updater/exclude.txt", titles);
+    titles = excludeTitles((std::string(CONFIG_PATH) + "exclude.txt").c_str(), titles);
     //std::cout << std::endl;
 
     int total = titles.size();
@@ -192,6 +212,9 @@ int main(int argc, char* argv[])
     initServices();
 
     viewMain();
+
+    std::filesystem::create_directory("/config");
+    std::filesystem::create_directory(CONFIG_PATH);
 
     bool done = false;
     bool updated = false;

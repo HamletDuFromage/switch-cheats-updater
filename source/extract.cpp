@@ -177,18 +177,24 @@ bool caselessCompare (const std::string& a, const std::string& b){
     return strcasecmp(a.c_str(), b.c_str()) < 0;
 }
 
-int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, bool credits){
+int extractCheats(std::string zipPath, std::vector<Title> titles, int cfw, bool credits){
     zipper::Unzipper unzipper(zipPath);
     std::vector<zipper::ZipEntry> entries = unzipper.entries();
     std::vector<Title> extractedTitles;
-    int offset;
-    if(sxos){
-        offset = std::string(TITLES_PATH).length();
-        chdir(SXOS_PATH);
-    }
-    else{
-        offset = std::string(CONTENTS_PATH).length();
-        chdir(AMS_PATH);
+    int offset = 0;
+    switch(cfw){
+        case ams:
+            offset = std::string(CONTENTS_PATH).length();
+            chdir(AMS_PATH);
+            break;
+        case rnx:
+            offset = std::string(CONTENTS_PATH).length();
+            chdir(REINX_PATH);
+            break;
+        case sxos:
+            offset = std::string(TITLES_PATH).length();
+            chdir(SXOS_PATH);
+            break;
     }
 
     std::vector<std::string> entriesNames;
@@ -272,22 +278,33 @@ int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, boo
             }
         }
     }
-    std::cout << std::endl;
-
-    writeTitlesToFile(extractedTitles);
-
     unzipper.close();
+
+    std::cout << std::endl;
+    std::cout << "Successfully extracted " 
+        << "\033[0;32m" << count << "\033[0m"
+        << " cheat files for " 
+        << "\033[0;32m" << extractedTitles.size() << "\033[0m"
+        << " titles" << std::endl;
+    writeTitlesToFile(extractedTitles);
     return count;
 }
 
-int removeCheats(bool sxos){
+int removeCheats(int cfw){
     std::string path;
-    if(sxos){
-        path = std::string(SXOS_PATH) + std::string(TITLES_PATH);
-        std::filesystem::remove("./titles.zip");
-    } else {
-        path = std::string(AMS_PATH) + std::string(CONTENTS_PATH);
-        std::filesystem::remove("./contents.zip");
+    switch(cfw){
+        case ams:
+            path = std::string(AMS_PATH) + std::string(CONTENTS_PATH);
+            std::filesystem::remove(std::string(CONFIG_PATH) + "contents.zip");
+            break;
+        case rnx:
+            path = std::string(REINX_PATH) + std::string(CONTENTS_PATH);
+            std::filesystem::remove(std::string(CONFIG_PATH) + "contents.zip");
+            break;
+        case sxos:
+            path = std::string(SXOS_PATH) + std::string(TITLES_PATH);
+            std::filesystem::remove(std::string(CONFIG_PATH) + "titles.zip");
+            break;
     }
     int c = 0;
     for (const auto & entry : std::filesystem::directory_iterator(path)){

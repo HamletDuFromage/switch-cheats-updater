@@ -21,10 +21,18 @@
 #include "title.h"
 #include "titles.hpp"
 
-#define CONTENTS_PATH "contents/"
-#define TITLES_PATH "titles/"
-#define AMS_PATH "/atmosphere/"
-#define SXOS_PATH "/sxos/"
+#define CONFIG_PATH     "/config/cheats-updater/"
+#define CONTENTS_PATH   "contents/"
+#define TITLES_PATH     "titles/"
+#define AMS_PATH        "/atmosphere/"
+#define SXOS_PATH       "/sxos/"
+#define REINX_PATH      "/ReiNX/"
+
+enum CFW{
+    ams,
+    rnx,
+    sxos,
+};
 
 std::vector<std::string> getInstalledTitles(std::vector<NcmStorageId> storageId);
 
@@ -34,9 +42,9 @@ std::string formatApplicationId(u64 ApplicationId);
 
 std::vector<Title> excludeTitles(const char* path, std::vector<Title> listedTitles);
 
-int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, bool credits);
+int extractCheats(std::string zipPath, std::vector<Title> titles, int cfw, bool credits);
 
-int removeCheats(bool sxos);
+int removeCheats(int cfw);
 
 bool caselessCompare (const std::string& a, const std::string& b);
 

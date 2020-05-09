@@ -20,9 +20,6 @@
 
 #include <switch.h>
 
-
-
-//
 bool downloadFile(const char *url, const char *output, int api);
 
 std::string fetchVersion(const char *url, const char *range);
