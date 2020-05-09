@@ -45,7 +45,7 @@ INCLUDES	:=	include libs/minizip/include
 #ROMFS		:=	romfs
 APP_TITLE   :=  Cheats Updater
 APP_AUTHOR  :=  HamletDuFromage & Acta
-APP_VERSION :=  1.1.8
+APP_VERSION :=  1.2.0
 
 #---------------------------------------------------------------------------------
 # options for code generation

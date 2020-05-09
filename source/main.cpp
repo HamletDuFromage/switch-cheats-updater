@@ -11,7 +11,7 @@
 #include "download.hpp"
 #include "titles.hpp"
 
-#define VERSION "1.1.8"
+#define VERSION "1.2.0"
 #define RELEASE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/tag/v1.0"
 #define ARCHIVE_URL "https://github.com/HamletDuFromage/switch-cheats-db/releases/download/v1.0/"
 
@@ -151,9 +151,9 @@ void viewTitles() {
 
     int total = titles.size();
 
-    std::cout << "\033[0;32m" << "Found " << total << " installed titles" << "\033[0m" << std::endl << std::endl;
-
     printTitles(titles);
+
+    std::cout << std::endl << "\033[0;32m" << "Found " << total << " installed titles" << "\033[0m" << std::endl;
     
     std::cout << std::endl;
     
@@ -164,11 +164,12 @@ void viewHeader() {
     std::cout << "\033[1;31m" << "Cheats Updater v" << VERSION << " by HamletDuFromage & Acta" << "\033[0m" <<std::endl;
     std::cout << "\033[31m" << "================================================================================" << "\033[0m" << std::endl;
     std::cout << std::endl;
+    consoleUpdate(NULL);
 }
 void viewMain() {
     viewHeader();
 
-    std::cout << "\033[36m" << "Title ids listed in \"/config/cheats-updater/exclude.txt\" won't get cheat updates" << "\033[0m" << std::endl;
+    std::cout << "\033[36m" << "Title IDs listed in \"/config/cheats-updater/exclude.txt\" won't get cheat updates" << "\033[0m" << std::endl;
 
     std::cout << "Press [A] to download and update cheat files" << std::endl;
     std::cout << "Press [B] to view installed titles" << std::endl;

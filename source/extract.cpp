@@ -243,7 +243,7 @@ int extractCheats(std::string zipPath, std::vector<Title> titles, bool sxos, boo
                     std::cout << std::setfill(' ') << std::setw(80) << '\r';
 
                     name = "No name retrieved.";
-                    id = e.substr(7, 16);
+                    id = e.substr(offset, 16);
                     std::transform(id.begin(), id.end(), id.begin(), ::toupper);
 
                     for(int i = 0; i < (int)titles.size(); i++) {

@@ -16,9 +16,12 @@ By default, this homebrew will overwrite the existing cheats. If you have your o
 Copy the `switch-cheats-updater/` directory to `/switch/` in your sdcard
 
 ## Screenshots
-![done](https://user-images.githubusercontent.com/61667930/79614220-643e2980-8100-11ea-83ec-0a6002f1f6b5.jpg)
+![Home](https://user-images.githubusercontent.com/61667930/81458764-74e03d80-919c-11ea-87da-0073dad8aebe.jpg)
+![Done](https://user-images.githubusercontent.com/61667930/81458769-81649600-919c-11ea-813d-6c34bc4266c7.jpg)
 
 ## Thanks
-[ITotalJustice](https://github.com/ITotalJustice) for his download functions
+- [wilsam239 (Acta)](https://github.com/wilsam239) for his [significant QOL contribtions](https://github.com/HamletDuFromage/switch-cheats-updater/pull/3)
 
-The AtlasNX discord for helping me various with libnx questions in the past few weeks
+- [ITotalJustice](https://github.com/ITotalJustice) for his download functions
+
+- The AtlasNX discord for helping me various with libnx questions in the past few weeks
