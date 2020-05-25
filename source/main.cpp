@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
                 deleteCheatsConfirm = true;
                 clearConsole();
                 viewHeader();
-                std::cout << "\033[1;31m" << "Are you sure? this will delete every cheat from your /titles/ folder." << std::endl;
+                std::cout << "\033[1;31m" << "Are you sure? this will delete every cheat from your /contents/ folder." << std::endl;
                 std::cout << "Press [A] to delete ALL existing cheat files" << std::endl;
                 std::cout << "Press [-] to return to main menu and abort" << "\033[0m" <<std::endl;
                 done = true;
