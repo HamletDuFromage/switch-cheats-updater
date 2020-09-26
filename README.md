@@ -1,3 +1,6 @@
+# NOT SUPPORTED ANYMORE, USE THIS INSTEAD: https://github.com/HamletDuFromage/AIO-switch-updater
+While this app will still work, I recommend using AIO-switch-updater which adds QOL improvements chosing which cheats to not update with a GUI
+
 # switch-cheats-updater
 <p align="center">
 <img src = "https://user-images.githubusercontent.com/61667930/78696328-916c2a00-78ff-11ea-95e4-f104e8428e64.jpg"\><br>
